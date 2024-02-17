@@ -5,6 +5,7 @@ import api.ranieriiuri.credit.application.system.dto.CreditView
 import api.ranieriiuri.credit.application.system.dto.CreditViewList
 import api.ranieriiuri.credit.application.system.entity.Credit
 import api.ranieriiuri.credit.application.system.service.impl.CreditService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -17,7 +18,7 @@ class CreditResource(
     private val creditService: CreditService
 ) {
     @PostMapping
-    fun saveCredit(@RequestBody creditDto: CreditDto): ResponseEntity<String> {
+    fun saveCredit(@RequestBody @Valid creditDto: CreditDto): ResponseEntity<String> {
         val credit: Credit =
             this.creditService.save(creditDto.toEntity())                          //transforma o dto da req no modelo que o DB aceita(Credit), constante na fun 'toEntity'
         return ResponseEntity.status(HttpStatus.CREATED)
