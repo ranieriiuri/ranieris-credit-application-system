@@ -33,7 +33,7 @@ class CustomerResource(
     @DeleteMapping("/{id}")
     fun deleteCustomer(@PathVariable id: Long) = this.customerService.delete(id)
 
-    @PatchMapping()
+    @PatchMapping
     fun updateCustomer(
         @RequestParam(value = "customerId") id: Long,        //O "@RequestParam" é uma outra forma de passar a "PathVariable", indicando qual valor vindo na req utilizaremos
         @RequestBody customerUpdateDto: CustomerUpdateDto
