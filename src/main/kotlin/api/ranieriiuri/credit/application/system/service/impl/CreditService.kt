@@ -1,10 +1,12 @@
 package api.ranieriiuri.credit.application.system.service.impl
 
 import api.ranieriiuri.credit.application.system.entity.Credit
+import api.ranieriiuri.credit.application.system.exception.BusinessException
 import api.ranieriiuri.credit.application.system.repository.CreditRepository
 import api.ranieriiuri.credit.application.system.service.ICreditService
 import java.util.UUID
 import org.springframework.stereotype.Service
+import java.lang.IllegalArgumentException
 
 @Service
 class CreditService(
@@ -25,8 +27,8 @@ class CreditService(
         //Receberá o id do cliente e o codigo do crédito pra buscar
         val credit: Credit =
             (this.creditRepository.findByCreditCode(creditCode)     //Buscar se o crédito existe no BD pelo método do 'CreditRepository' injetado na class, passando o codigo dele...
-                ?: throw RuntimeException("Credit code $creditCode not found"))         //...Se existir, passa esse retorno p variável 'credit', Se não tiver, lança exceção de "não existe"
+                ?: throw BusinessException("Credit code $creditCode not found"))         //...Se existir, passa esse retorno p variável 'credit', Se não tiver, lança exceção criada de "não existe"
         //Faz uma verificação, se o id do cliente atrelado ao cod. de credito recebido na val 'credit' for igual ao id do customer(cliente) passado como param do metodo, retorna o crédito...
-        return if (credit.customer?.id == customerId) credit else throw RuntimeException("Contact the administration")       //...senão, não retorna e dispara exceção para reportar à administração!
+        return if (credit.customer?.id == customerId) credit else throw IllegalArgumentException("Contact the administration")       //...senão, não retorna e dispara exceção para reportar à administração!
     }
 }

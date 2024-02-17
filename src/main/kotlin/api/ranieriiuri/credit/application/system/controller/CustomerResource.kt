@@ -32,6 +32,7 @@ class CustomerResource(
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)                                  // vai retornar o status de 'no content' ao deletar
     fun deleteCustomer(@PathVariable id: Long) = this.customerService.delete(id)
 
     @PatchMapping
