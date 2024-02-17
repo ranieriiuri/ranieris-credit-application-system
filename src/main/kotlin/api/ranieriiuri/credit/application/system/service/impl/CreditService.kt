@@ -3,7 +3,7 @@ package api.ranieriiuri.credit.application.system.service.impl
 import api.ranieriiuri.credit.application.system.entity.Credit
 import api.ranieriiuri.credit.application.system.repository.CreditRepository
 import api.ranieriiuri.credit.application.system.service.ICreditService
-import org.hibernate.validator.constraints.UUID
+import java.util.UUID
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,7 +20,7 @@ class CreditService(
         return this.creditRepository.save(credit) // Apenas se o método acima bater, retorna salvando o crédito no campo do customer em questão no BD
     }
 
-    override fun findAllByCustomer(customerId: Long): List<Credit> = this.creditRepository.findAllByCustomer(customerId) //
+    override fun findAllByCustomer(customerId: Long): List<Credit> = this.creditRepository.findAllByCustomer(customerId) //método que recebe o id de um cliente e retorna uma lista dos creditos dele
     override fun findByCreditCode(customerId: Long, creditCode: UUID): Credit {
         //Receberá o id do cliente e o codigo do crédito pra buscar
         val credit: Credit =
