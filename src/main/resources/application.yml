@@ -5,9 +5,9 @@ spring:
     # password: apikotlin |--> Caso queira
   jpa:
     show-sql?: true
-    hibernate:
-      properties:
-        hibernate.format_sql: true
+    #hibernate:
+    properties:
+      hibernate.format_sql: true
       # ddl-auto: create-drop |--> Caso fosse ordenar p criar (qnd subir) e destruir (qnd parasse a execução) as tabelas
   h2:
     console:
