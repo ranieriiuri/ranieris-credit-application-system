@@ -31,7 +31,12 @@ class CreditResource(
             .stream()                                    // usa o método que busca creditos e informações relacionadas pelo id do cliente recebido e já encadea com o método de 'stream' (que cria um fluxo com dados de listas, onde podemos) manipular sem alterar a lista original...
             .map { credit: Credit -> CreditViewList(credit) }                                               // o map trabalhará dentro da stream, p cada 'credit' que será recebido na stream, será passado como param para criar uma 'CreditViewList'...
             .collect(Collectors.toList())                                                                   //... por fim, coletamos e criamos uma nova lista com todos os dados processados acima (que já será retornado)
-        return ResponseEntity.status(HttpStatus.OK).body(creditViewList)
+
+        return if (creditViewList.isEmpty()) {                                                               // se a lista vier vazia retorna 'No_Content'
+            ResponseEntity.noContent().build()
+        } else {
+            ResponseEntity.status(HttpStatus.OK).body(creditViewList)                                        // senão, retorna ok e a lista com os creditos
+        }
     }
 
     @GetMapping("/{creditCode}")
