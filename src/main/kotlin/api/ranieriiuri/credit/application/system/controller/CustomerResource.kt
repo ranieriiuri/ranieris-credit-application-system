@@ -16,11 +16,11 @@ class CustomerResource(
     private val customerService: CustomerService    // Injetando a class que faz essa ligação com o DB
 ) {
     @PostMapping
-    fun saveCustomer(@RequestBody @Valid customerDto: CustomerDto): ResponseEntity<String> {       // Indica q, qnd chegar uma requisição com o 'customerDto' a api deve salvar e retornar uma string
-        val savedCustomer =
+    fun saveCustomer(@RequestBody @Valid customerDto: CustomerDto): ResponseEntity<CustomerView> {       // Indica q, qnd chegar uma requisição com o 'customerDto' a api deve salvar e retornar uma string
+        val savedCustomer: Customer =
             this.customerService.save(customerDto.toEntity())   //Já retorna o customer que será salvo no DB, utilizando a fun 'toEntity' designada p/ isto na class 'CustumerDto'(que define isto)
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body("Customer ${savedCustomer.email} saved")  // msg string de retorno
+            .body(CustomerView(savedCustomer))  // msg string de retorno
     }
 
     @GetMapping("/{id}")        // Indica que, as operações dessa fun serão do tipo get e virão no endpoint definido no '@RequestMapping' + '/id'
