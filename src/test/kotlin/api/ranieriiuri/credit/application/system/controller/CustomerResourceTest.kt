@@ -61,6 +61,24 @@ class CustomerResourceTest {
             .andDo(MockMvcResultHandlers.print())               // esse permite imprimir tudo no teste !
     }
 
+    //Teste p qnd tentamos salvar um customer com o mesmo cpf e email de um customer já salvo no DB
+    @Test
+    fun `should not save a customer with same cpf and return 409 status`() {
+        //given
+        customerRepository.save(buildCustomerDto().toEntity())      // usamos a fun builder com 'toEntity' p transformar esse Dto em entity e salvar no DB
+        val customerDto: CustomerDto = buildCustomerDto()
+        val valueAsString: String =
+            objectMapper.writeValueAsString(customerDto)                // transforma o customer dto criado em json para a req
+        //when & then
+        mockMvc.perform(MockMvcRequestBuilders.post(URL).contentType(MediaType.APPLICATION_JSON).content(valueAsString))
+            .andExpect(MockMvcResultMatchers.status().isConflict)       // mocka a req esperando um retorno 409 (Conflict)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Conflict! Consult the documentation"))  // se retorna essa msg
+            .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").exists())      // se tem 'timestamp'
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(409))   // se o status é o 409
+            .andExpect(MockMvcResultMatchers.jsonPath("$.details").isNotEmpty)      // se 'details' não esta vazia
+            .andDo(MockMvcResultHandlers.print())       // imprime
+    }
+
     // fun que cria um Dto de teste
     fun buildCustomerDto(
         firstName: String = "Caleb",
