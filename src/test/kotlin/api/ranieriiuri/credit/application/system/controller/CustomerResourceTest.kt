@@ -46,7 +46,7 @@ class CustomerResourceTest {
     @Test
     fun `should create a customer and returns 201 status`() {
         //given
-        val customerDto: CustomerDto = buildCustomerDto()
+        val customerDto: CustomerDto = builderCustomerDto()
         val valueAsString: String =
             objectMapper.writeValueAsString(customerDto)                // transforma o customer dto criado em json para a req
         //when e then
@@ -65,8 +65,8 @@ class CustomerResourceTest {
     @Test
     fun `should not save a customer with same cpf and return 409 status`() {
         //given
-        customerRepository.save(buildCustomerDto().toEntity())      // usamos a fun builder com 'toEntity' p transformar esse Dto em entity e salvar no DB
-        val customerDto: CustomerDto = buildCustomerDto()
+        customerRepository.save(builderCustomerDto().toEntity())      // usamos a fun builder com 'toEntity' p transformar esse Dto em entity e salvar no DB
+        val customerDto: CustomerDto = builderCustomerDto()
         val valueAsString: String =
             objectMapper.writeValueAsString(customerDto)                // transforma o customer dto criado em json para a req
         //when & then
@@ -83,7 +83,7 @@ class CustomerResourceTest {
     @Test           // testando salvamento com campos vazios
     fun `should not save a customer with empty fields and return 400 status`() {
         //given
-        val customerDto: CustomerDto = buildCustomerDto(firstName = "")     // instanciando o Dto, mas passando um dos campos vazio
+        val customerDto: CustomerDto = builderCustomerDto(firstName = "")     // instanciando o Dto, mas passando um dos campos vazio
         val valueAsString: String =
             objectMapper.writeValueAsString(customerDto)
         //when & then
@@ -98,8 +98,37 @@ class CustomerResourceTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.details").isNotEmpty)      // se 'details' não esta vazia
             .andDo(MockMvcResultHandlers.print())       // imprime
     }
+
+    @Test       // testando findById(merry way)
+    fun `should find customer by id and return 200 status`() {
+        //given
+        val customer: Customer = customerRepository.save(builderCustomerDto().toEntity())
+        //when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("$URL/${customer.id}")
+            .accept(MediaType.APPLICATION_JSON))                // p esse mock do get, usamos o método 'accept'
+            .andExpect(MockMvcResultMatchers.status().isOk)     // se retorna 200
+            .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("kakaxcnb@gmail.com"))   // comparando campos
+            .andDo(MockMvcResultHandlers.print())               // imprime
+    }
+
+    @Test       // testando findById quando o customer do id passado não exist no DB
+    fun `should not find customer by and return 400 status`() {
+        //given & when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("$URL/${2}")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Bad Request! Consult the documentation"))  // se retorna essa msg
+            .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").exists())      // se tem 'timestamp'
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(400))   // se o status é o 400
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.exception")
+                    .value("BusinessException"))            // se retona a Exception q criamos
+            .andDo(MockMvcResultHandlers.print())
+    }
+
+
     // fun que cria um Dto de teste
-    fun buildCustomerDto(
+    fun builderCustomerDto(
         firstName: String = "Caleb",
         lastName: String = "Neves Batista",
         cpf: String = "05844195469",
