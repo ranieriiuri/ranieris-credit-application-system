@@ -126,6 +126,34 @@ class CustomerResourceTest {
             .andDo(MockMvcResultHandlers.print())
     }
 
+    @Test       // testando delete
+    fun `should find and delete customer by id and return 204 status`() {
+        //given
+        val customer: Customer = customerRepository.save(builderCustomerDto().toEntity())           // cria um customer e coloca no DB
+        //when & then
+        mockMvc.perform(MockMvcRequestBuilders.delete("$URL/${customer.id}")            // mocka uma req passando delete e o id do customer pra excluir
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNoContent)                                  // espera retorno de status 'no content'
+            .andDo(MockMvcResultHandlers.print())
+
+    }
+
+    @Test       // testando delete no cenário de não conseguir delete por causa do id inválido
+    fun `should find invalid id, not delete customer and return 400 status`() {
+        //given & when & then
+        mockMvc.perform(MockMvcRequestBuilders.delete("$URL/${1}")            // mocka uma req passando delete e o id do customer pra excluir
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)                                  // espera retorno de status 'no content'
+            .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Bad Request! Consult the documentation"))  // se retorna essa msg
+            .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").exists())      // se tem 'timestamp'
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(400))   // se o status é o 400
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.exception")
+                    .value("BusinessException"))            // se retona a Exception q criamos
+            .andDo(MockMvcResultHandlers.print())
+
+    }
+
 
     // fun que cria um Dto de teste
     fun builderCustomerDto(
