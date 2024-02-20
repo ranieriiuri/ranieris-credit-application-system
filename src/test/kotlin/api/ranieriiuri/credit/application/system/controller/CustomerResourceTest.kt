@@ -79,6 +79,25 @@ class CustomerResourceTest {
             .andDo(MockMvcResultHandlers.print())       // imprime
     }
 
+
+    @Test           // testando salvamento com campos vazios
+    fun `should not save a customer with empty fields and return 400 status`() {
+        //given
+        val customerDto: CustomerDto = buildCustomerDto(firstName = "")     // instanciando o Dto, mas passando um dos campos vazio
+        val valueAsString: String =
+            objectMapper.writeValueAsString(customerDto)
+        //when & then
+        mockMvc.perform(MockMvcRequestBuilders.post(URL).contentType(MediaType.APPLICATION_JSON).content(valueAsString))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)       // mocka a req esperando um retorno 400 (Bad Request)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Bad Request! Consult the documentation"))  // se retorna essa msg
+            .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").exists())      // se tem 'timestamp'
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(400))   // se o status é o 400
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.exception")
+                    .value("MethodArgumentNotValidException"))      // se é esse tipo de exceção que está sendo retornada
+            .andExpect(MockMvcResultMatchers.jsonPath("$.details").isNotEmpty)      // se 'details' não esta vazia
+            .andDo(MockMvcResultHandlers.print())       // imprime
+    }
     // fun que cria um Dto de teste
     fun buildCustomerDto(
         firstName: String = "Caleb",
