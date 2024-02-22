@@ -60,7 +60,10 @@ class CreditResourceTest {
     }
 
     @AfterEach
-    fun tearDown() = customerRepository.deleteAll()     // a cada termino de teste limpa o DB
+    fun tearDown() {
+        customerRepository.deleteAll()     // a cada termino de teste limpa o DB
+        creditRepository.deleteAll()
+    }
 
     // save(caminho feliz)
     @Test
@@ -215,13 +218,6 @@ class CreditResourceTest {
         credit.creditCode = UUID.fromString("5f3ccaea-1120-4210-ab7d-0cadf25ac25c")     // definindo um credit code conhecido p ele
         creditRepository.save(credit)                   // persistindo no db (lembrando que o id do customer que existe no db é 1 e já está definido na fun build desse credit)
     //when & then
-
-//        val creditCustomer = 1L
-//        creditToFindByCreditCode.creditCode = creditCode
-//        creditToFindByCreditCode.customer?.id = creditCustomer
-//        creditRepository.save(creditToFindByCreditCode)
-
-    //when & then
         mockMvc.perform(MockMvcRequestBuilders.get("/api/credits/5f3ccaea-1120-4210-ab7d-0cadf25ac25c?customerId=1") // passamos credit code e customer id
             .accept(MediaType.APPLICATION_JSON))                // p esse mock do get, usamos o método 'accept'
             .andExpect(MockMvcResultMatchers.status().isOk)     // se retorna 200
@@ -229,13 +225,48 @@ class CreditResourceTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.creditValue").value(1500))
             .andExpect(MockMvcResultMatchers.jsonPath("$.emailCustomer").value("iuriranierioliveira@gmail.com"))
             .andDo(MockMvcResultHandlers.print())               // imprime
-
-
-
     }
 
-    // testando find by credit code
+    //testando findByCreditCode no contexto de achar o credit code mas não bater com o id do customer passado
+    @Test
+    fun `should not match customer id and credit code and return 400`() {
+        //given
+        val credit: Credit = buildCreditDto().toEntity()                        // usando fun criada p criar um credit dto e já transformando em entity
+        credit.creditCode = UUID.fromString("5f3ccaea-1120-4210-ab7d-0cadf25ac25c")     // definindo um credit code conhecido p ele
+        creditRepository.save(credit)                   // persistindo no db (lembrando que o id do customer que existe no db é 1 e já está definido na fun build desse credit)
 
+        //when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/credits/5f3ccaea-1120-4210-ab7d-0cadf25ac25c?customerId=2") // passamos credit code e customer id (errado)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Bad Request! Consult the documentation"))  // se retorna essa msg
+            .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").exists())      // se tem 'timestamp'
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(400))   // se o status é o 400
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.exception")
+                    .value("IllegalArgumentException"))      // se é esse tipo de exceção que está sendo retornada
+            .andExpect(MockMvcResultMatchers.jsonPath("$.details").isNotEmpty)      // se 'details' não esta vazia
+            .andDo(MockMvcResultHandlers.print())       // imprime
+    }
+
+    // testando findByCreditCode no contexto de credit code inválido
+    @Test
+    fun `should not find by invalid credit code and return 400 status`() {
+        // given & when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/credits/5f3ccaea-1120-4210-ab7d-0cadf25ac25c?customerId=1") // passamos credit code invalido e customer id existente
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Bad Request! Consult the documentation"))  // se retorna essa msg
+            .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").exists())      // se tem 'timestamp'
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(400))   // se o status é o 400
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.exception")
+                    .value("BusinessException"))      // se é esse tipo de exceção que está sendo retornada
+            .andExpect(MockMvcResultMatchers.jsonPath("$.details").isNotEmpty)      // se 'details' não esta vazia
+            .andDo(MockMvcResultHandlers.print())       // imprime
+    }
+
+    // criará o customer que será persistido no repository p os testes
     fun buildCustomer(
         firstName: String = "Iuri",
         lastName: String = "Ranieri",
@@ -260,6 +291,7 @@ class CreditResourceTest {
         id = id
     )
 
+    // fun que usaremos p testes que precisam do credit dto como param
     fun buildCreditDto(
         creditValue: BigDecimal = BigDecimal.valueOf(1500),
         dayFirstInstallment: LocalDate = LocalDate.now().plusMonths(1),
