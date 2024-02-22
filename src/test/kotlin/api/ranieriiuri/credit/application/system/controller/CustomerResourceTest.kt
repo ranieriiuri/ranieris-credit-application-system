@@ -100,7 +100,7 @@ class CustomerResourceTest {
             .andDo(MockMvcResultHandlers.print())       // imprime
     }
 
-    @Test       // testando findById(merry way)
+    @Test       // testando findById(happy path)
     fun `should find customer by id and return 200 status`() {
         //given
         val customer: Customer = customerRepository.save(builderCustomerDto().toEntity())
