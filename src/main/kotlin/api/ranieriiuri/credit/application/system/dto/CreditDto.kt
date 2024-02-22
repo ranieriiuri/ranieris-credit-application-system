@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 data class CreditDto(
     @field:NotNull(message = "the credit value inserted is invalid") val creditValue: BigDecimal,
-    @field:Future val dayFirstInstallment: LocalDate,
+    @field:Future (message = "chose a initial day to paying installments up to 3 months")val dayFirstInstallment: LocalDate,
     @field:Min(value = 1, message = "choose a number of installments above 0") @field:Max(value = 48, message = "choose a number of installments below 49") val numberOfInstallments: Int,
     @field:NotNull(message = "the id of this customer inserted is invalid") val customerId: Long
 ) {

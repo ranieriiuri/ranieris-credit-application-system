@@ -2,6 +2,7 @@ package api.ranieriiuri.credit.application.system.dto
 
 import api.ranieriiuri.credit.application.system.entity.Credit
 import api.ranieriiuri.credit.application.system.enummeration.Status
+import jakarta.persistence.Id
 import java.math.BigDecimal
 import java.util.UUID
 
@@ -11,7 +12,8 @@ data class CreditView(
     val numberOfInstallments: Int,
     val status: Status,
     val emailCustomer: String?,
-    val incomeCustomer: BigDecimal?
+    val incomeCustomer: BigDecimal?,
+    val customerId: Long?
 ) {
     constructor(credit: Credit): this (
         creditCode = credit.creditCode,
@@ -19,6 +21,7 @@ data class CreditView(
         numberOfInstallments = credit.numberOfInstallments,
         status = credit.status,
         emailCustomer = credit.customer?.email,
-        incomeCustomer = credit.customer?.income
+        incomeCustomer = credit.customer?.income,
+        customerId = credit.customer?.id
     )
 }
