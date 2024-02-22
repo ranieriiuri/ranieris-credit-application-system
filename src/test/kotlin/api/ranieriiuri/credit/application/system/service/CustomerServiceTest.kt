@@ -21,7 +21,7 @@ import java.math.BigDecimal
 import java.util.Optional
 import java.util.Random
 
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 @ExtendWith(MockKExtension::class)                                                  // indica ao spring que iremos usar o Mockk para mockar
 class CustomerServiceTest {
     @MockK
@@ -99,7 +99,7 @@ class CustomerServiceTest {
             zipCode: String = "54517300",
             street: String = "Av Almirante Paulo Moreira",
             income: BigDecimal = BigDecimal.valueOf(1000.0),
-            id: Long = 1L
+            id: Long = 1
         ) = Customer(
             firstName = firstName,
             lastName = lastName,

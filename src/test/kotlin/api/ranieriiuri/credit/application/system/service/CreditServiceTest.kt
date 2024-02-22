@@ -7,13 +7,10 @@ import api.ranieriiuri.credit.application.system.repository.CreditRepository
 import api.ranieriiuri.credit.application.system.service.CustomerServiceTest
 import api.ranieriiuri.credit.application.system.service.impl.CreditService
 import api.ranieriiuri.credit.application.system.service.impl.CustomerService
-import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.unmockkAll
-import io.mockk.verify
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -24,7 +21,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
 
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 @ExtendWith(MockKExtension::class)
 class CreditServiceTest {
     @MockK
@@ -68,14 +65,14 @@ class CreditServiceTest {
     @Test
     fun `should not create credit when invalid day first installment`() {
         //given
-        val invalidDayFirstInstallment: LocalDate = LocalDate.now().plusMonths(5)
+        val invalidDayFirstInstallment: LocalDate = LocalDate.now().plusMonths(4)
         val credit: Credit = buildCredit(dayFirstInstallment = invalidDayFirstInstallment)
 
         every { creditRepository.save(credit) } answers { credit }
         //when
         Assertions.assertThatThrownBy { creditService.save(credit) }
-           // .isInstanceOf(BusinessException::class.java)
-            .hasMessage("Invalid Date")
+           .isInstanceOf(BusinessException::class.java)
+           .hasMessage("the limit for the date of the first installment is up to 3 months from the current date.")
         //then
         verify(exactly = 0) { creditRepository.save(any()) }
     }
@@ -152,12 +149,12 @@ class CreditServiceTest {
             creditValue: BigDecimal = BigDecimal.valueOf(100.0),
             dayFirstInstallment: LocalDate = LocalDate.now().plusMonths(2L),
             numberOfInstallments: Int = 15,
-            customer: Customer = CustomerServiceTest.buildCustomer()
+            customer: Customer = CustomerServiceTest.buildCustomer(),
         ): Credit = Credit(
             creditValue = creditValue,
             dayFirstInstallment = dayFirstInstallment,
             numberOfInstallments = numberOfInstallments,
-            customer = customer
+            customer = customer,
         )
     }
 }
